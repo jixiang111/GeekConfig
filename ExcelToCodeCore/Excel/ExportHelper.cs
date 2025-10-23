@@ -500,11 +500,12 @@ namespace ExcelToCode.Excel
                     proxy.datas[fieldNames[m]] = data;
 
                     Field field = headInfos[i].Fields[m];
+                    var col = field.Col;
 
                     for (int n = ExcelReader.DataStartRow; n <= rowCount; n++)
                     {
                         var content = "";
-                        var obj = sheet.GetValue(n, m + 1);
+                        var obj = sheet.GetValue(n, col);
                         if (obj != null)
                             content = obj.ToString();
 
@@ -515,7 +516,7 @@ namespace ExcelToCode.Excel
                             if (idStr != null && coverDataMap.ContainsKey(idStr))
                             {
                                 content = "";
-                                obj = coverSheet.GetValue(coverDataMap[idStr], m + 1);
+                                obj = coverSheet.GetValue(coverDataMap[idStr], col);
                                 if (obj != null)
                                     content = obj.ToString();
                             }
