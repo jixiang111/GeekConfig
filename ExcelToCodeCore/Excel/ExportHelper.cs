@@ -438,9 +438,7 @@ namespace ExcelToCode.Excel
             {
                 SheetHeadInfo headInfo = headInfos[i];
                 ExcelWorksheet sheet = package.Workbook.Worksheets[headInfo.SheetId]; //只导出合法表单id的数据 
-                                                                                      //空表没有数据
-                if (ExcelReader.DataStartRow > sheet.Dimension.End.Row)
-                    continue;
+                // 空表也需要导出合法的空 bytes，否则运行时容器会硬加载对应文件并报 FileNotFoundException。
 
                 var proxy = new SheetSerializeProxy<object>();
                 proxy.sheetName = headInfos[i].SheetName;
