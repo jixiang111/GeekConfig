@@ -217,6 +217,36 @@ namespace ExcelToCode.Excel
             template = Template.Parse(File.ReadAllText(templatePath));
             content = template.Render(Hash.FromAnonymousObject(mgrInfo));
             File.WriteAllText(targetPath + "/DataClass.cs", content);
+
+            if (etype == ExportType.Server)
+                SyncServerConfigDefineProject(targetPath);
+        }
+
+        private static void SyncServerConfigDefineProject(string defineSourcePath)
+        {
+            var serverCodePath = Path.GetFullPath(Setting.GetCodePath(ExportType.Server));
+            var serverGeneratePath = Path.GetFullPath(Path.Combine(serverCodePath, "..", ".."));
+            var projectPath = Path.GetFullPath(Path.Combine(serverGeneratePath, "..", "Geek.Server.ConfigDefine"));
+            var defineTargetPath = Path.Combine(projectPath, "Data", "Define");
+
+            Directory.CreateDirectory(defineTargetPath);
+            File.Copy(Path.Combine(defineSourcePath, "DataEnum.cs"), Path.Combine(defineTargetPath, "DataEnum.cs"), true);
+            File.Copy(Path.Combine(defineSourcePath, "DataClass.cs"), Path.Combine(defineTargetPath, "DataClass.cs"), true);
+
+            var csprojPath = Path.Combine(projectPath, "Geek.Server.ConfigDefine.csproj");
+            const string csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include=""MessagePack"" Version=""3.1.7"" />
+  </ItemGroup>
+
+</Project>
+";
+            File.WriteAllText(csprojPath, csprojContent);
         }
 
         private static void GenBeanAddContainer(List<SheetHeadInfo> headInfos, ExportType etype, DataMgrInfo mgrInfo)
