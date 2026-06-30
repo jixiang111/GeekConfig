@@ -1,6 +1,5 @@
 ﻿using DotLiquid; 
 using NLog;
-using NLog.Fluent;
 using System.IO.Packaging;
 using System.Text.RegularExpressions;
 
@@ -178,3 +177,4 @@ namespace ExcelToCode.Excel
 
     }
 }
+

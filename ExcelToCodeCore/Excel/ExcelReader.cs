@@ -13,6 +13,7 @@ namespace ExcelToCode.Excel
     {
 
         private static readonly NLog.Logger LOGGER = LogManager.GetCurrentClassLogger();
+        private static bool _excelPackageLicenseConfigured;
 
         /// <summary>
         /// 导出类型行号
@@ -51,7 +52,7 @@ namespace ExcelToCode.Excel
         public List<SheetHeadInfo> ReadHeadInfo(string filePath, ExportType exportType, out ExcelPackage outPackage)
         {
             List<SheetHeadInfo> res = new List<SheetHeadInfo>();
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            EnsureExcelPackageLicense();
             ExcelPackage package = new ExcelPackage(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
             package.File = new FileInfo(filePath);
             outPackage = package;
@@ -195,7 +196,7 @@ namespace ExcelToCode.Excel
 
         public static Dictionary<string, List<List<string>>> ReadAllData(string filePath)
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            EnsureExcelPackageLicense();
             ExcelPackage package = new ExcelPackage(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
             package.File = new FileInfo(filePath);
 
@@ -218,6 +219,26 @@ namespace ExcelToCode.Excel
             }
             package.Dispose();
             return datas;
+        }
+
+        private static void EnsureExcelPackageLicense()
+        {
+            if (_excelPackageLicenseConfigured)
+            {
+                return;
+            }
+
+            string licenseKey = Environment.GetEnvironmentVariable("EPPLUS_LICENSE_KEY");
+            if (!string.IsNullOrWhiteSpace(licenseKey))
+            {
+                ExcelPackage.License.SetCommercial(licenseKey);
+            }
+            else
+            {
+                ExcelPackage.License.SetNonCommercialOrganization("GameAllInOne");
+            }
+
+            _excelPackageLicenseConfigured = true;
         }
 
 
